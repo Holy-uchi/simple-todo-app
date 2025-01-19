@@ -80,29 +80,36 @@ export const TodoApp = () => {
   }, []);
 
   return (
-    <Card className="w-[400px]">
-      <CardHeader>
-        <CardTitle className="text-center">Supabase Todo App</CardTitle>
-      </CardHeader>
-      <CardContent>
-        {error && (
-          <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md mb-4">
-            {error}
-          </div>
-        )}
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Input type="text" placeholder="Todo" {...register('title')} disabled={isLoading} />
-            {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
-          </div>
-          <div className="flex justify-end">
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? '追加中...' : '追加'}
-            </Button>
-          </div>
-          <TodoList todos={todos} handleDelete={handleDelete} />
-        </form>
-      </CardContent>
-    </Card>
+    <div className="flex justify-center w-full">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-center">Todo List</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {error && (
+            <div className="bg-destructive/15 text-destructive px-4 py-2 rounded-md mb-4">
+              {error}
+            </div>
+          )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <div className="space-y-2">
+              <Input
+                type="text"
+                placeholder="新しいTodoを入力..."
+                {...register('title')}
+                disabled={isLoading}
+              />
+              {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
+            </div>
+            <div className="flex justify-end">
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? '追加中...' : '追加'}
+              </Button>
+            </div>
+            <TodoList todos={todos} handleDelete={handleDelete} />
+          </form>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
