@@ -2,16 +2,24 @@
 
 import { Todo } from '@/lib/types';
 import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { TodoItem } from './TodoItem';
+import { AnimatePresence, motion } from 'framer-motion';
 
 type Props = {
   todos: Todo[];
   handleDelete: (id: number) => Promise<void>;
+  handleToggle: (id: number, completed: boolean) => Promise<void>;
   deletingTodoIds: number[];
+  updatingTodoIds: number[];
 };
 
-export const TodoList = ({ todos, handleDelete, deletingTodoIds }: Props) => {
+export const TodoList = ({
+  todos,
+  handleDelete,
+  handleToggle,
+  deletingTodoIds,
+  updatingTodoIds,
+}: Props) => {
   if (todos.length === 0) {
     return (
       <Card>
@@ -33,20 +41,13 @@ export const TodoList = ({ todos, handleDelete, deletingTodoIds }: Props) => {
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.2 }}
           >
-            <Card>
-              <CardContent className="flex justify-between items-center p-4">
-                <span className="font-medium">✅ {todo.title}</span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleDelete(todo.id)}
-                  disabled={deletingTodoIds.includes(todo.id)}
-                  className="h-8 w-8"
-                >
-                  {deletingTodoIds.includes(todo.id) ? '...' : '✖️'}
-                </Button>
-              </CardContent>
-            </Card>
+            <TodoItem
+              todo={todo}
+              onDelete={handleDelete}
+              onToggle={handleToggle}
+              isDeleting={deletingTodoIds.includes(todo.id)}
+              isUpdating={updatingTodoIds.includes(todo.id)}
+            />
           </motion.div>
         ))}
       </AnimatePresence>

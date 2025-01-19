@@ -1,38 +1,52 @@
 'use client';
 
 import type { Todo } from '@/lib/types';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Trash2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TodoItemProps {
   todo: Todo;
   onDelete: (id: number) => Promise<void>;
   onToggle: (id: number, completed: boolean) => Promise<void>;
+  isDeleting: boolean;
+  isUpdating: boolean;
 }
 
-export function TodoItem({ todo, onDelete, onToggle }: TodoItemProps) {
-  const handleToggle = async () => {
-    await onToggle(todo.id, !todo.completed);
-  };
-
-  const handleDelete = async () => {
-    await onDelete(todo.id);
-  };
-
+export function TodoItem({ todo, onDelete, onToggle, isDeleting, isUpdating }: TodoItemProps) {
   return (
-    <div className="flex items-center justify-between p-4 bg-white rounded-lg shadow">
-      <div className="flex items-center space-x-3">
-        <input
-          type="checkbox"
-          checked={todo.completed}
-          onChange={handleToggle}
-          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
-        />
-        <span className={`${todo.completed ? 'line-through text-gray-400' : 'text-gray-700'}`}>
-          {todo.title}
-        </span>
-      </div>
-      <button onClick={handleDelete} className="text-red-500 hover:text-red-700 focus:outline-none">
-        削除
-      </button>
-    </div>
+    <Card>
+      <CardContent className="flex items-center justify-between p-4">
+        <div className="flex items-center space-x-3">
+          <Checkbox
+            checked={todo.completed}
+            onCheckedChange={(checked) => onToggle(todo.id, checked === true)}
+            disabled={isUpdating}
+          />
+          <span
+            className={cn(
+              'transition-colors duration-200',
+              todo.completed ? 'text-muted-foreground line-through' : 'text-foreground'
+            )}
+          >
+            {todo.title}
+          </span>
+        </div>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => onDelete(todo.id)}
+          disabled={isDeleting}
+          className={cn(
+            'h-8 w-8 text-red-500 hover:text-red-600 hover:bg-red-50',
+            isDeleting && 'text-red-300'
+          )}
+        >
+          {isDeleting ? <span className="animate-pulse">...</span> : <Trash2 className="h-4 w-4" />}
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

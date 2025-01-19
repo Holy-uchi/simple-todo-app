@@ -1,7 +1,7 @@
 'use client';
 
 import { TodoList } from '@/components/molecules/TodoList';
-import { getAllTodos, addTodo, deleteTodo } from '@/lib/actions';
+import { getAllTodos, addTodo, deleteTodo, updateTodo } from '@/lib/actions';
 import { useEffect, useState, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,6 +22,7 @@ export const TodoApp = () => {
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [isAddingTodo, setIsAddingTodo] = useState(false);
   const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
+  const [updatingTodoIds, setUpdatingTodoIds] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -78,6 +79,20 @@ export const TodoApp = () => {
     }
   }, []);
 
+  const handleToggle = useCallback(async (id: number, completed: boolean) => {
+    try {
+      setUpdatingTodoIds((prev) => [...prev, id]);
+      setError(null);
+      const updatedTodo = await updateTodo(id, { completed });
+      setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, completed } : todo)));
+    } catch (err) {
+      setError('Todoの更新に失敗しました');
+      console.error(err);
+    } finally {
+      setUpdatingTodoIds((prev) => prev.filter((todoId) => todoId !== id));
+    }
+  }, []);
+
   if (isInitialLoading) {
     return (
       <div className="flex justify-center w-full">
@@ -115,7 +130,13 @@ export const TodoApp = () => {
                 {isAddingTodo ? '追加中...' : '追加'}
               </Button>
             </div>
-            <TodoList todos={todos} handleDelete={handleDelete} deletingTodoIds={deletingTodoIds} />
+            <TodoList
+              todos={todos}
+              handleDelete={handleDelete}
+              handleToggle={handleToggle}
+              deletingTodoIds={deletingTodoIds}
+              updatingTodoIds={updatingTodoIds}
+            />
           </form>
         </CardContent>
       </Card>
