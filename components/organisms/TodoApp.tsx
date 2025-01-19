@@ -19,7 +19,9 @@ type TodoFormData = z.infer<typeof todoSchema>;
 
 export const TodoApp = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
+  const [isAddingTodo, setIsAddingTodo] = useState(false);
+  const [deletingTodoIds, setDeletingTodoIds] = useState<number[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   const {
@@ -34,7 +36,6 @@ export const TodoApp = () => {
   useEffect(() => {
     const fetchTodos = async () => {
       try {
-        setIsLoading(true);
         setError(null);
         const todos = await getAllTodos();
         setTodos(todos);
@@ -42,7 +43,7 @@ export const TodoApp = () => {
         setError('Todoの取得に失敗しました');
         console.error(err);
       } finally {
-        setIsLoading(false);
+        setIsInitialLoading(false);
       }
     };
     fetchTodos();
@@ -50,34 +51,42 @@ export const TodoApp = () => {
 
   const onSubmit = async (data: TodoFormData) => {
     try {
-      setIsLoading(true);
+      setIsAddingTodo(true);
       setError(null);
-      await addTodo(data.title);
-      const updatedTodos = await getAllTodos();
-      setTodos(updatedTodos);
+      const newTodo = await addTodo(data.title);
+      setTodos((prev) => [newTodo, ...prev]);
       reset();
     } catch (err) {
       setError('Todoの追加に失敗しました');
       console.error(err);
     } finally {
-      setIsLoading(false);
+      setIsAddingTodo(false);
     }
   };
 
   const handleDelete = useCallback(async (id: number) => {
     try {
-      setIsLoading(true);
+      setDeletingTodoIds((prev) => [...prev, id]);
       setError(null);
       await deleteTodo(id);
-      const updatedTodos = await getAllTodos();
-      setTodos(updatedTodos);
+      setTodos((prev) => prev.filter((todo) => todo.id !== id));
     } catch (err) {
       setError('Todoの削除に失敗しました');
       console.error(err);
     } finally {
-      setIsLoading(false);
+      setDeletingTodoIds((prev) => prev.filter((todoId) => todoId !== id));
     }
   }, []);
+
+  if (isInitialLoading) {
+    return (
+      <div className="flex justify-center w-full">
+        <Card className="w-full max-w-md">
+          <CardContent className="p-4 text-center">読み込み中...</CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="flex justify-center w-full">
@@ -97,16 +106,16 @@ export const TodoApp = () => {
                 type="text"
                 placeholder="新しいTodoを入力..."
                 {...register('title')}
-                disabled={isLoading}
+                disabled={isAddingTodo}
               />
               {errors.title && <p className="text-sm text-destructive">{errors.title.message}</p>}
             </div>
             <div className="flex justify-end">
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? '追加中...' : '追加'}
+              <Button type="submit" disabled={isAddingTodo}>
+                {isAddingTodo ? '追加中...' : '追加'}
               </Button>
             </div>
-            <TodoList todos={todos} handleDelete={handleDelete} />
+            <TodoList todos={todos} handleDelete={handleDelete} deletingTodoIds={deletingTodoIds} />
           </form>
         </CardContent>
       </Card>

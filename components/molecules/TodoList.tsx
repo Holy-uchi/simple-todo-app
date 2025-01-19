@@ -8,9 +8,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 type Props = {
   todos: Todo[];
   handleDelete: (id: number) => Promise<void>;
+  deletingTodoIds: number[];
 };
 
-export const TodoList = ({ todos, handleDelete }: Props) => {
+export const TodoList = ({ todos, handleDelete, deletingTodoIds }: Props) => {
   if (todos.length === 0) {
     return (
       <Card>
@@ -39,9 +40,10 @@ export const TodoList = ({ todos, handleDelete }: Props) => {
                   variant="ghost"
                   size="icon"
                   onClick={() => handleDelete(todo.id)}
+                  disabled={deletingTodoIds.includes(todo.id)}
                   className="h-8 w-8"
                 >
-                  ✖️
+                  {deletingTodoIds.includes(todo.id) ? '...' : '✖️'}
                 </Button>
               </CardContent>
             </Card>
