@@ -12,8 +12,7 @@ Tailwind CSS: ^3.4.17
 shadcn/ui: ^2.1.8
 (Radix UI を活用したコンポーネントライブラリ)
 バックエンド
-SQLite: ^3.0.0
-Prisma: ^5.0.0
+Supabase: ^2.47.16
 開発ツール
 npm: ^10.0.0
 ESLint: ^9.0.0
@@ -175,23 +174,45 @@ Cypress や Playwright などを利用して、実際のブラウザ上でのフ
 perl
 コピーする
 my-next-app/
+my-next-app/
 ├── app/
+│   ├── page.tsx                       # ルートパス ("/") のページ
+│   ├── dashboard/
+│   │   └── page.tsx                   # /dashboard ルート
 │   ├── api/
 │   │   └── [endpoint]/
-│   │       └── route.ts         # 各APIエンドポイント
+│   │       └── route.ts               # 各APIエンドポイント
 │   ├── components/
-│   │   ├── ui/                  # UIコンポーネント (shadcn/radixベース)
-│   │   └── layout/              # レイアウト関連
-│   ├── hooks/                   # カスタムフック
+│   │   ├── ui/                        # shadcn/ui (Radix UI) 等のベースコンポーネント
+│   │   │   ├── button.tsx
+│   │   │   ├── dialog.tsx
+│   │   │   └── ...                    # shadcn/ui が生成するコンポーネント群
+│   │   ├── atoms/                     # 小さな単機能部品 (Atomicデザイン: atoms)
+│   │   │   └── ...
+│   │   ├── molecules/                 # 複数のatomsを組み合わせたUI部品 (molecules)
+│   │   │   └── ...
+│   │   ├── organisms/                 # 画面の一部領域を構成する大きめのUI (organisms)
+│   │   │   └── ...
+│   │   └── layout/                    # レイアウト関連 (ヘッダー/フッター等)
+│   │       └── ...
+│   ├── hooks/                         # カスタムフック
+│   │   └── useSomething.ts
 │   ├── lib/
 │   │   ├── api/
-│   │   │   ├── client.ts        # 変更禁止: AIモデル設定
-│   │   │   ├── types.ts         # 変更禁止: 型定義
-│   │   │   └── config.ts        # 変更禁止: 環境設定
-│   │   └── utils/               # 共通関数
-│   └── styles/                  # Tailwind等のスタイル定義
-├── prisma/                      # Prisma設定, スキーマ
-└── ...
+│   │   │   ├── client.ts             # 変更禁止: AIモデル設定
+│   │   │   ├── types.ts              # 変更禁止: 型定義
+│   │   │   └── config.ts             # 変更禁止: 環境設定
+│   │   └── utils/                    # 共通関数
+│   │       ├── formatDate.ts
+│   │       └── ...
+│   └── styles/                        # Tailwind等のスタイル定義
+│       ├── globals.css
+│       └── ...
+├── public/                            # 画像、静的ファイルなど
+├── package.json
+├── README.md
+└── ...（その他必要ファイル）
+
 AIモデルのバージョン: client.ts 内で一元管理（変更禁止）
 型定義: types.ts 内で一元管理（変更禁止）
 共通化: 重複実装を避け、ロジックは utils か api に集約
